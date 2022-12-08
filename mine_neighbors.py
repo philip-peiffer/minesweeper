@@ -1,0 +1,1 @@
+# This module contains an abstraction for neighbors to mines
