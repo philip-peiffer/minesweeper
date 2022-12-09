@@ -5,33 +5,42 @@ class Space(Button):
     bg_color = "grey"
     sus_color = "yellow"
 
-    def __init__(self, row, col, master) -> None:
+    def __init__(self, row, col, board) -> None:
+        self.board = board
+        self.row = row
+        self.col = col
+        self.suspected = False
+        self.selected = False
+
+
+    def put_on_board(self):
+        """
+        Performs the tkinter actions necessary to put the
+        space on the board and binds the necessary actions
+        to the space.
+        """
         super().__init__(
-            master=master,
+            master=self.board,
             relief=RAISED,
             borderwidth=1,
             width=3,
             height=2,
             background="grey"
         )
-        self.row = row
-        self.col = col
-        self.suspected = False
-        self.selected = False
 
         # bind right mouse click actions to button
-        self.bind("<Button-3>", self.toggle_suspect)
+        self.bind("<Button-3>", self.__toggle_suspect)
         self.grid(row=self.row, column=self.col)
 
 
-    def select(self):
+    def __select(self):
         self.selected = True
         self.config(relief=SUNKEN)
         # TODO: on inheriting classes, call super.select() but then
         # each has their own way of changing config
 
 
-    def toggle_suspect(self, *args):
+    def __toggle_suspect(self, event):
         """
         Toggles the suspected attribute between True/False.
         Also updates the button text to show a question mark on 
