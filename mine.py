@@ -19,5 +19,4 @@ class Mine(Space):
 
 
     def __select(self, event):
-        super().__select()
         raise MineError
