@@ -81,9 +81,3 @@ class Game:
 
     def set_root(self):
         self.root = tk.Tk()
-
-
-    def select(self):
-        """
-        
-        """
