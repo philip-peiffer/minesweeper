@@ -1,6 +1,7 @@
 # This module contains an abstraction for the board itself.
 from space import Space
 from mine import Mine
+from mine_neighbors import MineNeighbor
 from tkinter import Frame
 import random
 
@@ -55,6 +56,31 @@ class Board(Frame):
             if not isinstance(self.board[row][col], Mine):
                 mines_left -= 1
                 self.board[row][col] = Mine(row, col, board=self)
+                self.__create_mine_neighbors(row, col)
+
+
+    def __create_mine_neighbors(self, mine_row, mine_col):
+        """
+        Looks at all spaces connected to a mine's location given
+        by mine_row and min_col and replaces the space object
+        with a mine_neighbor object. If a mine_neighbor already
+        exists there, then increments neighbor count.
+        """
+        for row in range(-1, 2):
+            for col in range(-1, 2):
+                n_row = mine_row + row
+                n_col = mine_col + col
+                
+                if n_row >= self.height or n_row < 0:
+                    continue
+                elif n_col >= self.width or n_col < 0:
+                    continue
+                elif isinstance(self.board[n_row][n_col], Mine):
+                    continue
+
+                if not isinstance(self.board[n_row][n_col], MineNeighbor):
+                    self.board[n_row][n_col] = MineNeighbor(n_row, n_col, self)
+                self.board[n_row][n_col].add_mine()
 
 
     def __rand_pos(self) -> tuple:
