@@ -1,3 +1,4 @@
 from game import Game
 
-new_game = Game(10, 20, 1)
+new_game = Game()
+new_game.play_game()
