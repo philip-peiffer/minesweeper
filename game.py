@@ -60,13 +60,13 @@ class Game:
             
             if choice == "1":
                 self.b_width, self.b_height = 10, 10
-                self.m_count = 3
+                self.m_count = 20
             elif choice == "2":
                 self.b_width, self.b_height = 20, 20
-                self.m_count = 9
+                self.m_count = 100
             elif choice == "3":
-                self.b_width, self.b_height = 30, 30
-                self.m_count = 16
+                self.b_width, self.b_height = 20, 20
+                self.m_count = 180
             else:
                 valid = False
 
