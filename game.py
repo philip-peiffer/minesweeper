@@ -26,7 +26,6 @@ class Game:
         # build out the board gui and start the game
         self.board.build_board()
         self.root.mainloop()
-        return
 
 
 
@@ -34,6 +33,7 @@ class Game:
         if isinstance(x_val, MineError):
             self.set_new_game()
             self.play_game()
+        print(x_val)
 
 
     def set_new_game(self):
