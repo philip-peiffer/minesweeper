@@ -9,8 +9,18 @@ class Space(Button):
         self.board = board
         self.row = row
         self.col = col
+        self.neighbors = []
         self.suspected = False
         self.selected = False
+
+
+    def add_neighbor(self, neighbor):
+        """
+        Adds a space's neighbor to its list of neighbors. 
+        Note - neighbor must be a space, mine, or
+        mine neighbor type.
+        """
+        self.neighbors.append(neighbor)
 
 
     def put_on_board(self):
@@ -30,14 +40,15 @@ class Space(Button):
 
         # bind right mouse click actions to button
         self.bind("<Button-3>", self.__toggle_suspect)
+        self.bind("<Button-1>", self.select)
         self.grid(row=self.row, column=self.col)
 
 
-    def __select(self):
-        self.selected = True
-        self.config(relief=SUNKEN)
-        # TODO: on inheriting classes, call super.select() but then
-        # each has their own way of changing config
+    def select(self, event):
+        print(f"selected {self.row, self.col}")
+        if not self.selected:
+            self.selected = True
+            self.config(background="red")
 
 
     def __toggle_suspect(self, event):
