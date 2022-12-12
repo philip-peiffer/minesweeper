@@ -1,5 +1,5 @@
 # This module contains an abstraction for the board itself.
-from space import Space
+from free_space import FreeSpace
 from mine import Mine
 from mine_neighbors import MineNeighbor
 from tkinter import Frame
@@ -15,7 +15,7 @@ class Board(Frame):
         self.spaces = width*height
         self.mine_count = mine_count
         self.board = [
-            [Space(row, col, self) for col in range(self.width)]\
+            [FreeSpace(row, col, self) for col in range(self.width)]\
             for row in range(self.height)
         ]
 
