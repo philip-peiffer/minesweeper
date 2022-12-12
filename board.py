@@ -7,8 +7,9 @@ import random
 
 class Board(Frame):
 
-    def __init__(self, width, height, mine_count, master) -> None:
-        self.master = master
+    def __init__(self, width, height, mine_count, master_window, game) -> None:
+        self.game = game
+        self.master = master_window
         self.width = width
         self.height = height
         self.spaces = width*height

@@ -45,10 +45,10 @@ class Space(Button):
 
 
     def select(self, event):
-        print(f"selected {self.row, self.col}")
         if not self.selected:
             self.selected = True
             self.config(background="red")
+            self.board.game.decrease_win_countdown()
 
 
     def __toggle_suspect(self, event):

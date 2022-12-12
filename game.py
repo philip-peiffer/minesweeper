@@ -75,8 +75,16 @@ class Game:
         self.win_countdown = self.b_height * self.b_width - self.m_count
 
 
+    def decrease_win_countdown(self):
+        self.win_countdown -= 1
+
+
+    def increase_win_countdown(self):
+        self.win_countdown += 1
+
+
     def set_board(self):
-        self.board = Board(self.b_width, self.b_height, self.m_count, self.root)
+        self.board = Board(self.b_width, self.b_height, self.m_count, self.root, self)
 
 
     def set_root(self):
