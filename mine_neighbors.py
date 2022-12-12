@@ -10,13 +10,17 @@ class MineNeighbor(Space):
 
     def put_on_board(self):
         super().put_on_board()
-        self.bind("<Button-1>", self.__select)
-        self.config(text=f"{self.m_touching}")
+        self.bind("<Button-1>", self.select)
         self.grid(row=self.row, column=self.col)
 
 
-    def __select(self, event):
-        super().__select()
+    def select(self, event):
+        """
+        Configures the space to display the number of mines
+        touching the space. Bound to left click.
+        """
+        self.config(text=f"{self.m_touching}")
+        super().select(event)
 
 
     def add_mine(self):
