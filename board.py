@@ -18,6 +18,7 @@ class Board(Frame):
             [FreeSpace(row, col, self) for col in range(self.width)]\
             for row in range(self.height)
         ]
+        super().__init__(master=self.master)
 
 
     def build_board(self):
@@ -25,7 +26,6 @@ class Board(Frame):
         Performs the tkinter actions necessary to build the board
         frame on the screen.
         """
-        super().__init__(master=self.master)
         self.__place_pieces()
 
         # pack the board inside its parent window
@@ -99,7 +99,7 @@ class Board(Frame):
         NOTE - this must be done after placing all pieces on the board
         so that the neighbor lists are correct.
         """
-        if not isinstance(space, (Space, Mine, MineNeighbor)):
+        if not isinstance(space, (FreeSpace, Mine, MineNeighbor)):
             raise ValueError
 
         for row in range(-1, 2):
