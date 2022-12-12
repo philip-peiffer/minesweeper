@@ -14,7 +14,7 @@ class Board(Frame):
         self.spaces = width*height
         self.mine_count = mine_count
         self.board = [
-            [Space(row, col, board=self) for col in range(self.width)]\
+            [Space(row, col, self) for col in range(self.width)]\
             for row in range(self.height)
         ]
 
@@ -40,12 +40,12 @@ class Board(Frame):
         for row in self.board:
             for space in row:
                 space.put_on_board()
+                self.__add_neighbors(space)
 
 
     def __create_mines(self) -> None:
         """
-        Creates the mines and places them on the game board. Requires
-        the mine count as an argument. No return.
+        Creates the mines and places them on the game board. No return.
         """
         if self.mine_count >= self.spaces:
             raise ValueError
@@ -55,32 +55,65 @@ class Board(Frame):
             row, col = self.__rand_pos()
             if not isinstance(self.board[row][col], Mine):
                 mines_left -= 1
-                self.board[row][col] = Mine(row, col, board=self)
-                self.__create_mine_neighbors(row, col)
+                new_mine = Mine(row, col, board=self)
+                self.board[row][col] = new_mine
+                self.__create_mine_neighbors(new_mine)
 
 
-    def __create_mine_neighbors(self, mine_row, mine_col):
+    def __create_mine_neighbors(self, mine):
         """
         Looks at all spaces connected to a mine's location given
-        by mine_row and min_col and replaces the space object
+        by the mine and replaces any space object
         with a mine_neighbor object. If a mine_neighbor already
         exists there, then increments neighbor count.
         """
         for row in range(-1, 2):
             for col in range(-1, 2):
-                n_row = mine_row + row
-                n_col = mine_col + col
+                n_row = mine.row + row
+                n_col = mine.col + col
                 
-                if n_row >= self.height or n_row < 0:
-                    continue
-                elif n_col >= self.width or n_col < 0:
-                    continue
-                elif isinstance(self.board[n_row][n_col], Mine):
+                row_out_bound = (n_row >= self.height or n_row < 0)
+                col_out_bound = (n_col >= self.width or n_col < 0)
+                if row_out_bound or col_out_bound:
                     continue
 
-                if not isinstance(self.board[n_row][n_col], MineNeighbor):
-                    self.board[n_row][n_col] = MineNeighbor(n_row, n_col, self)
-                self.board[n_row][n_col].add_mine()
+                neighbor = self.board[n_row][n_col]
+                neighbor_is_mine = isinstance(neighbor, Mine)
+                
+                if neighbor_is_mine:
+                    continue
+
+                if not isinstance(neighbor, MineNeighbor):
+                    neighbor = MineNeighbor(n_row, n_col, self)
+                    self.board[n_row][n_col] = neighbor
+                neighbor.add_mine()
+
+
+    def __add_neighbors(self, space):
+        """
+        Requires a space as an argument, which must be a space, 
+        a mine, or mine neighbor type. Finds the connected nodes 
+        to space, and adds them to the list of neighbors stored in
+        the space object.
+        NOTE - this must be done after placing all pieces on the board
+        so that the neighbor lists are correct.
+        """
+        if not isinstance(space, (Space, Mine, MineNeighbor)):
+            raise ValueError
+
+        for row in range(-1, 2):
+            for col in range(-1, 2):
+                n_row = space.row + row
+                n_col = space.col + col
+                
+                pointing_at_self = ((row, col) == (0, 0))
+                row_out_bound = (n_row >= self.height or n_row < 0)
+                col_out_bound = (n_col >= self.width or n_col < 0)
+                
+                if pointing_at_self or row_out_bound or col_out_bound:
+                    continue
+
+                space.add_neighbor(self.board[n_row][n_col])
 
 
     def __rand_pos(self) -> tuple:
