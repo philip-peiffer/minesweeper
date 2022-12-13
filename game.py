@@ -11,8 +11,9 @@ class Game:
         self.b_height = 0
         self.m_count = 0
         self.win_countdown = 0
-        self.root = None
+        self.root = tk.Tk()
         self.board = None
+        self.title = tk.Frame(master=self.root)
 
 
     def update_gui(self, event):
@@ -51,13 +52,16 @@ class Game:
         """
         Creates a new tkinter window for a game.
         """
-        if self.root is not None:
+        if self.board is not None:
             self.root.destroy()
-        self.set_root()
-        title = self.create_title()
-        title.pack()
+            self.root = tk.Tk()
+            self.title = tk.Frame(master=self.root)
+        self.set_root_callback()
+        self.create_title_label()
+        self.title.pack()
         self.set_board_dims()
         self.build_board()
+        self.board.pack()
         self.set_win_countdown()
 
 
@@ -102,13 +106,11 @@ class Game:
         self.bind_update_gui()
 
 
-    def set_root(self):
-        self.root = tk.Tk()
+    def set_root_callback(self):
+        
         self.root.report_callback_exception = self.handle_exceptions
 
 
-    def create_title(self):
-        title = tk.Frame(master=self.root)
-        title_label = tk.Label(master=title, text="Mine Sweeper")
+    def create_title_label(self):
+        title_label = tk.Label(master=self.title, text="Mine Sweeper")
         title_label.pack()
-        return title

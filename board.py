@@ -28,9 +28,6 @@ class Board(Frame):
         """
         self.__place_pieces()
 
-        # pack the board inside its parent window
-        self.pack()
-
 
     def __place_pieces(self):
         """
