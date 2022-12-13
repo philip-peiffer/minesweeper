@@ -97,9 +97,9 @@ class Game:
         Actually places the various frames that are
         properties of this class on the screen.
         """
-        self.title.pack()
-        self.board.pack()
-        self.tracking_frame.pack()
+        self.title.pack(side=tk.TOP)
+        self.board.pack(side=tk.LEFT)
+        self.tracking_frame.pack(side=tk.RIGHT)
 
 
     def set_board_dims(self):
