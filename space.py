@@ -40,7 +40,7 @@ class Space(Button):
 
         # bind right mouse click actions to button
         self.bind("<Button-3>", self.__toggle_suspect)
-        self.bind("<Button-1>", self.select)
+        self.bind("<Button-1>", self.select, "+")
         self.grid(row=self.row, column=self.col)
 
 
