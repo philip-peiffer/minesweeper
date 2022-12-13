@@ -10,7 +10,6 @@ class MineNeighbor(Space):
 
     def put_on_board(self):
         super().put_on_board()
-        self.bind("<Button-1>", self.select)
         self.grid(row=self.row, column=self.col)
 
 
