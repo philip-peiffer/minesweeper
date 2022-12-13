@@ -14,9 +14,13 @@ class Mine(Space):
     def put_on_board(self):
         super().put_on_board()
         self.bind("<Button-1>", self.__select)
-        self.config(background="black")
         self.grid(row=self.row, column=self.col)
 
 
     def __select(self, event):
+        """
+        Changes background to black to signify mine
+        and raises MineError.
+        """
+        self.config(background=self.bg_color)
         raise MineError
