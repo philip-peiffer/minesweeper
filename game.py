@@ -3,6 +3,7 @@
 from board import Board
 from mine import MineError
 import tkinter as tk
+import logging
 
 
 class Game:
@@ -11,15 +12,16 @@ class Game:
         self.b_width = 0
         self.b_height = 0
         self.m_count = 0
-        self.win_countdown = 0
+        self.non_mine_count = 0
         self.sus = 0
         self.root = tk.Tk()
         self.board = None
         self.title = tk.Frame(master=self.root)
         self.tracking_frame = tk.Frame(master=self.root)
+        self.log = logging.getLogger("ms_game")
 
 
-    def update_gui(self, event):
+    def __update_gui(self, event):
         """
         Updates the gui by looping through every space on the 
         board and inspecting if they're suspected or selected.
@@ -27,33 +29,22 @@ class Game:
         redraws the tracking_frame to display info to user.
         """
         # update sus and win counts
-        self.set_win_countdown()
+        self.__set_blank_space_count()
         self.sus = 0
         for row in self.board.board:
             for space in row:
                 if space.suspected:
                     self.sus += 1
                 if space.selected:
-                    self.win_countdown -= 1
+                    self.non_mine_count -= 1
 
         # update the tracking frame
         children = self.tracking_frame.winfo_children()
         for child in children:
             child.destroy()
 
-        self.create_tracking_label()
+        self.__create_tracking_label()
         self.tracking_frame.pack()
-
-
-    def bind_update_gui(self):
-        """
-        Binds the update_gui method to the spaces on the board
-        so that win countdown can be tracked.
-        """
-        for row in self.board.board:
-            for space in row:
-                space.bind("<Button-1>", self.update_gui, "+")
-                space.bind("<Button-3>", self.update_gui, "+")
 
 
     def play_game(self):
@@ -61,20 +52,24 @@ class Game:
         Creates a new game in tkinter and launches game loop.
         """
 
-        self.set_new_game()
+        self.__set_new_game()
 
         # start the game
         self.root.mainloop()
 
 
-
-    def handle_exceptions(self, x_type, x_val, traceback):
+    def __handle_exceptions(self, x_type, x_val, traceback):
+        """
+        Used to set the root callback to catch MineErrors
+        that are raised when a user clicks a mine. Default
+        is to log the error message.
+        """
         if isinstance(x_val, MineError):
-            self.play_game()
-        print(x_val)
+            return self.play_game()
+        self.log.log(x_type)
 
 
-    def set_new_game(self):
+    def __set_new_game(self):
         """
         Creates a new tkinter window for a game.
         """
@@ -83,16 +78,16 @@ class Game:
             self.root = tk.Tk()
             self.title = tk.Frame(master=self.root)
             self.tracking_frame = tk.Frame(master=self.root)
-        self.set_root_callback()
-        self.create_title_label()
-        self.set_board_dims()
-        self.build_board()
-        self.set_win_countdown()
-        self.create_tracking_label()
-        self.paint_gui()
+        self.__set_root_callback()
+        self.__create_title_label()
+        self.__set_board_dims()
+        self.__build_board()
+        self.__set_blank_space_count()
+        self.__create_tracking_label()
+        self.__paint_gui()
 
 
-    def paint_gui(self):
+    def __paint_gui(self):
         """
         Actually places the various frames that are
         properties of this class on the screen.
@@ -102,7 +97,11 @@ class Game:
         self.tracking_frame.pack(side=tk.RIGHT)
 
 
-    def set_board_dims(self):
+    def __set_board_dims(self):
+        """
+        Prompts the user for input on game difficulty.
+        Sets board dimension attributes based on selection.
+        """
         valid = False
         while not valid:
             print("Please choose a difficulty:")
@@ -125,39 +124,61 @@ class Game:
                 valid = False
 
 
-    def set_win_countdown(self):
-        self.win_countdown = self.b_height * self.b_width - self.m_count
+    def __set_blank_space_count(self):
+        """
+        Sets the count of blank spaces based on board dimensions
+        and mine count. To be called after getting user input on 
+        difficulty.
+        """
+        self.non_mine_count = self.b_height * self.b_width - self.m_count
 
 
-    def decrease_win_countdown(self):
-        self.win_countdown -= 1
-
-
-    def increase_win_countdown(self):
-        self.win_countdown += 1
-
-
-    def build_board(self):
-        self.board = Board(self.b_width, self.b_height, self.m_count, self.root, self)
+    def __build_board(self):
+        """
+        Creates the board frame to be used in the gui along with all
+        of the space widgets. Sets the board frame as a class property.
+        Binds the update of the gui to the board spaces so that tracking
+        frame can be updated on each click.
+        """
+        self.board = Board(self.b_width, self.b_height, self.m_count, self.root)
         self.board.build_board()
-        self.bind_update_gui()
+        self.__bind_update_gui()
 
 
-    def set_root_callback(self):
-        
-        self.root.report_callback_exception = self.handle_exceptions
+    def __bind_update_gui(self):
+        """
+        Binds the update_gui method to the spaces on the board
+        so that tracking frame can be updated with each click.
+        """
+        for row in self.board.board:
+            for space in row:
+                space.bind("<Button-1>", self.__update_gui, "+")
+                space.bind("<Button-3>", self.__update_gui, "+")
 
 
-    def create_title_label(self):
+    def __set_root_callback(self):
+        """
+        Sets callback behavior for the tkinter root.
+        """
+        self.root.report_callback_exception = self.__handle_exceptions
+
+
+    def __create_title_label(self):
+        """
+        Creates the label used in the title frame.
+        """
         title_label = tk.Label(master=self.title, text="Mine Sweeper")
         title_label.pack()
 
 
-    def create_tracking_label(self):
+    def __create_tracking_label(self):
+        """
+        Creates the labels used in the tracking frame.
+        """
         sus_label = tk.Label(master=self.tracking_frame, text="Suspected")
         sus_count = tk.Label(master=self.tracking_frame, text=self.sus)
         win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
-        win_count = tk.Label(master=self.tracking_frame, text=self.win_countdown)
+        win_count = tk.Label(master=self.tracking_frame, text=self.non_mine_count)
         sus_label.pack()
         sus_count.pack()
         win_label.pack()
