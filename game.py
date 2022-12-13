@@ -13,7 +13,6 @@ class Game:
         self.win_countdown = 0
         self.root = None
         self.board = None
-        self.set_new_game()
 
 
     def update_gui(self, event):
@@ -35,14 +34,13 @@ class Game:
         Creates the board in tkinter
         """
         # set up exception handling for catching the mine exception
-        self.root.report_callback_exception = self.handle_exceptions
+        
 
+        self.set_new_game()
         # build out the title
 
 
         # build out the board gui
-        self.board.build_board()
-        self.bind_update_gui()
 
         # build out the tracker pane
 
@@ -67,7 +65,7 @@ class Game:
             self.root.destroy()
         self.set_root()
         self.set_board_dims()
-        self.set_board()
+        self.build_board()
         self.set_win_countdown()
 
 
@@ -106,9 +104,12 @@ class Game:
         self.win_countdown += 1
 
 
-    def set_board(self):
+    def build_board(self):
         self.board = Board(self.b_width, self.b_height, self.m_count, self.root, self)
+        self.board.build_board()
+        self.bind_update_gui()
 
 
     def set_root(self):
         self.root = tk.Tk()
+        self.root.report_callback_exception = self.handle_exceptions
