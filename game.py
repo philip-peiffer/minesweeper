@@ -131,6 +131,7 @@ class Game:
         difficulty.
         """
         self.non_mine_count = self.b_height * self.b_width - self.m_count
+        self.sus = 0
 
 
     def __build_board(self):
