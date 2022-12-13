@@ -31,7 +31,7 @@ class Game:
 
     def play_game(self):
         """
-        Creates the board in tkinter
+        Creates a new game in tkinter and launches game loop.
         """
 
         self.set_new_game()
