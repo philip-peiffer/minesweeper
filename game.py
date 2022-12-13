@@ -14,6 +14,7 @@ class Game:
         self.root = tk.Tk()
         self.board = None
         self.title = tk.Frame(master=self.root)
+        self.tracking_frame = tk.Frame(master=self.root)
 
 
     def update_gui(self, event):
@@ -56,6 +57,7 @@ class Game:
             self.root.destroy()
             self.root = tk.Tk()
             self.title = tk.Frame(master=self.root)
+            self.tracking_frame = tk.Frame(master=self.root)
         self.set_root_callback()
         self.create_title_label()
         self.title.pack()
