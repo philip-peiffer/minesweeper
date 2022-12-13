@@ -5,7 +5,7 @@ class MineError(Exception):
     pass
 
 class Mine(Space):
-    bg_color = "black"
+    sel_color = "black"
     
     def __init__(self, row, col, board) -> None:
         super().__init__(row, col, board)
@@ -22,5 +22,5 @@ class Mine(Space):
         Changes background to black to signify mine
         and raises MineError.
         """
-        self.config(background=self.bg_color)
+        self.config(background=self.sel_color)
         raise MineError
