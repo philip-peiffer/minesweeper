@@ -18,7 +18,10 @@ class Game:
 
 
     def update_gui(self, event):
-        print(self.win_countdown)
+        self.tracking_frame.destroy()
+        self.tracking_frame = tk.Frame(master=self.root)
+        self.create_tracking_label()
+        self.tracking_frame.pack()
 
 
     def bind_update_gui(self):
@@ -63,8 +66,10 @@ class Game:
         self.title.pack()
         self.set_board_dims()
         self.build_board()
-        self.board.pack()
         self.set_win_countdown()
+        self.board.pack()
+        self.create_tracking_label()
+        self.tracking_frame.pack()
 
 
     def set_board_dims(self):
@@ -116,3 +121,14 @@ class Game:
     def create_title_label(self):
         title_label = tk.Label(master=self.title, text="Mine Sweeper")
         title_label.pack()
+
+
+    def create_tracking_label(self):
+        sus_label = tk.Label(master=self.tracking_frame, text="Suspected")
+        sus_count = tk.Label(master=self.tracking_frame, text=0)
+        win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
+        win_count = tk.Label(master=self.tracking_frame, text=self.win_countdown)
+        sus_label.pack()
+        sus_count.pack()
+        win_label.pack()
+        win_count.pack()
