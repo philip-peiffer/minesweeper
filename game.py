@@ -4,6 +4,46 @@ from board import Board
 from mine import MineError
 import tkinter as tk
 
+class LL:
+    def __init__(self):
+        self.head = None
+    
+
+    def add_widget(self, widget):
+        """
+        Adds widgets to the front of the LL
+        """
+        prev_head = self.head
+        self.head = LLNode(widget)
+        self.head.next = prev_head
+
+
+    def add_widgets_from_dict(self, widg_dict):
+        """
+        Adds widgets from a dictionary of children to the
+        linked list.
+        """
+        for child in widg_dict.values():
+            self.add_widget(child)
+
+
+    def del_widget(self):
+        """
+        Deletes widgets from the front of the LL. Also
+        destroys them in tkinter.
+        """
+        if self.head is None:
+            return
+        self.head.widget.destroy()
+        self.head = self.head.next
+
+
+class LLNode:
+    def __init__(self, widget):
+        self.widget = widget
+        self.next = None
+
+
 class Game:
 
     def __init__(self) -> None:
@@ -11,6 +51,7 @@ class Game:
         self.b_height = 0
         self.m_count = 0
         self.win_countdown = 0
+        self.sus = 0
         self.root = tk.Tk()
         self.board = None
         self.title = tk.Frame(master=self.root)
@@ -18,8 +59,27 @@ class Game:
 
 
     def update_gui(self, event):
-        self.tracking_frame.destroy()
-        self.tracking_frame = tk.Frame(master=self.root)
+        """
+        Updates the gui by looping through every space on the 
+        board and inspecting if they're suspected or selected.
+        Updates the win_countdown and sus counts and then 
+        redraws the tracking_frame to display info to user.
+        """
+        # update sus and win counts
+        self.set_win_countdown()
+        self.sus = 0
+        for row in self.board.board:
+            for space in row:
+                if space.suspected:
+                    self.sus += 1
+                if space.selected:
+                    self.win_countdown -= 1
+
+        # update the tracking frame
+        children = LL()
+        children.add_widgets_from_dict(self.tracking_frame.children)
+        while children.head is not None:
+            children.del_widget()
         self.create_tracking_label()
         self.tracking_frame.pack()
 
@@ -32,6 +92,7 @@ class Game:
         for row in self.board.board:
             for space in row:
                 space.bind("<Button-1>", self.update_gui, "+")
+                space.bind("<Button-3>", self.update_gui, "+")
 
 
     def play_game(self):
@@ -125,7 +186,7 @@ class Game:
 
     def create_tracking_label(self):
         sus_label = tk.Label(master=self.tracking_frame, text="Suspected")
-        sus_count = tk.Label(master=self.tracking_frame, text=0)
+        sus_count = tk.Label(master=self.tracking_frame, text=self.sus)
         win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
         win_count = tk.Label(master=self.tracking_frame, text=self.win_countdown)
         sus_label.pack()
