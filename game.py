@@ -33,17 +33,8 @@ class Game:
         """
         Creates the board in tkinter
         """
-        # set up exception handling for catching the mine exception
-        
 
         self.set_new_game()
-        # build out the title
-
-
-        # build out the board gui
-
-        # build out the tracker pane
-
 
         # start the game
         self.root.mainloop()
@@ -52,7 +43,6 @@ class Game:
 
     def handle_exceptions(self, x_type, x_val, traceback):
         if isinstance(x_val, MineError):
-            self.set_new_game()
             self.play_game()
         print(x_val)
 
