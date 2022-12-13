@@ -16,6 +16,20 @@ class Game:
         self.set_new_game()
 
 
+    def update_gui(self, event):
+        print(self.win_countdown)
+
+
+    def bind_update_gui(self):
+        """
+        Binds the update_gui method to the spaces on the board
+        so that win countdown can be tracked.
+        """
+        for row in self.board.board:
+            for space in row:
+                space.bind("<Button-1>", self.update_gui, "+")
+
+
     def play_game(self):
         """
         Creates the board in tkinter
@@ -23,8 +37,17 @@ class Game:
         # set up exception handling for catching the mine exception
         self.root.report_callback_exception = self.handle_exceptions
 
-        # build out the board gui and start the game
+        # build out the title
+
+
+        # build out the board gui
         self.board.build_board()
+        self.bind_update_gui()
+
+        # build out the tracker pane
+
+
+        # start the game
         self.root.mainloop()
 
 
