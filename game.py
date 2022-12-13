@@ -54,6 +54,8 @@ class Game:
         if self.root is not None:
             self.root.destroy()
         self.set_root()
+        title = self.create_title()
+        title.pack()
         self.set_board_dims()
         self.build_board()
         self.set_win_countdown()
@@ -103,3 +105,10 @@ class Game:
     def set_root(self):
         self.root = tk.Tk()
         self.root.report_callback_exception = self.handle_exceptions
+
+
+    def create_title(self):
+        title = tk.Frame(master=self.root)
+        title_label = tk.Label(master=title, text="Mine Sweeper")
+        title_label.pack()
+        return title
