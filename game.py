@@ -4,45 +4,6 @@ from board import Board
 from mine import MineError
 import tkinter as tk
 
-class LL:
-    def __init__(self):
-        self.head = None
-    
-
-    def add_widget(self, widget):
-        """
-        Adds widgets to the front of the LL
-        """
-        prev_head = self.head
-        self.head = LLNode(widget)
-        self.head.next = prev_head
-
-
-    def add_widgets_from_dict(self, widg_dict):
-        """
-        Adds widgets from a dictionary of children to the
-        linked list.
-        """
-        for child in widg_dict.values():
-            self.add_widget(child)
-
-
-    def del_widget(self):
-        """
-        Deletes widgets from the front of the LL. Also
-        destroys them in tkinter.
-        """
-        if self.head is None:
-            return
-        self.head.widget.destroy()
-        self.head = self.head.next
-
-
-class LLNode:
-    def __init__(self, widget):
-        self.widget = widget
-        self.next = None
-
 
 class Game:
 
@@ -76,10 +37,10 @@ class Game:
                     self.win_countdown -= 1
 
         # update the tracking frame
-        children = LL()
-        children.add_widgets_from_dict(self.tracking_frame.children)
-        while children.head is not None:
-            children.del_widget()
+        children = self.tracking_frame.winfo_children()
+        for child in children:
+            child.destroy()
+
         self.create_tracking_label()
         self.tracking_frame.pack()
 
@@ -124,12 +85,20 @@ class Game:
             self.tracking_frame = tk.Frame(master=self.root)
         self.set_root_callback()
         self.create_title_label()
-        self.title.pack()
         self.set_board_dims()
         self.build_board()
         self.set_win_countdown()
-        self.board.pack()
         self.create_tracking_label()
+        self.paint_gui()
+
+
+    def paint_gui(self):
+        """
+        Actually places the various frames that are
+        properties of this class on the screen.
+        """
+        self.title.pack()
+        self.board.pack()
         self.tracking_frame.pack()
 
 
