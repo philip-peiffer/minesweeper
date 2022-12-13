@@ -8,6 +8,11 @@ class MineNeighbor(Space):
         self.m_touching = 0
 
 
+    @property
+    def display_text(self):
+        return f"{self.m_touching}"
+
+
     def put_on_board(self):
         super().put_on_board()
         self.grid(row=self.row, column=self.col)
@@ -18,7 +23,6 @@ class MineNeighbor(Space):
         Configures the space to display the number of mines
         touching the space. Bound to left click.
         """
-        self.config(text=f"{self.m_touching}")
         super().select(event)
 
 

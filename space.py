@@ -4,6 +4,7 @@ from tkinter import Button, RAISED, SUNKEN
 class Space(Button):
     bg_color = "grey"
     sus_color = "yellow"
+    sel_color = "red"
 
     def __init__(self, row, col, board) -> None:
         self.board = board
@@ -12,6 +13,11 @@ class Space(Button):
         self.neighbors = []
         self.suspected = False
         self.selected = False
+
+
+    @property
+    def display_text(self):
+        return ""
 
 
     def add_neighbor(self, neighbor):
@@ -46,8 +52,9 @@ class Space(Button):
 
     def select(self, event):
         if not self.selected:
+            self.suspected = False
             self.selected = True
-            self.config(background="red")
+            self.config(background=self.sel_color, text=self.display_text)
 
 
     def __toggle_suspect(self, event):
@@ -56,7 +63,9 @@ class Space(Button):
         Also updates the button text to show a question mark on 
         the GUI.
         """
-        
+        if self.selected:
+            return
+
         self.suspected = not self.suspected
         if self.suspected:
             self.config(text="?", background=self.sus_color)
