@@ -198,11 +198,17 @@ class Game:
         """
         Creates the labels used in the tracking frame.
         """
+        mine_label = tk.Label(master=self.tracking_frame, text="Mine Count")
+        mine_count = tk.Label(master=self.tracking_frame, text=self.m_count)
+        mine_label.pack()
+        mine_count.pack()
+
         sus_label = tk.Label(master=self.tracking_frame, text="Suspected")
         sus_count = tk.Label(master=self.tracking_frame, text=self.sus)
-        win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
-        win_count = tk.Label(master=self.tracking_frame, text=self.non_mine_count)
         sus_label.pack()
         sus_count.pack()
+
+        win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
+        win_count = tk.Label(master=self.tracking_frame, text=self.non_mine_count)
         win_label.pack()
         win_count.pack()
