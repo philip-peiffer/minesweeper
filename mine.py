@@ -19,8 +19,6 @@ class Mine(Space):
 
     def __select(self, event):
         """
-        Changes background to black to signify mine
-        and raises MineError.
+        Raises MineError to be caught by game.
         """
-        self.config(background=self.sel_color)
         raise MineError
