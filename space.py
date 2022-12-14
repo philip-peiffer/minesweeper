@@ -54,7 +54,14 @@ class Space(Button):
         if not self.selected:
             self.suspected = False
             self.selected = True
-            self.config(background=self.sel_color, text=self.display_text)
+            self.reveal()
+
+
+    def reveal(self):
+        """
+        Reveals the space by changing background to approp color.
+        """
+        self.config(background=self.sel_color, text=self.display_text)
 
 
     def __toggle_suspect(self, event):

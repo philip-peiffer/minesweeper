@@ -1,10 +1,15 @@
 # This module contains an abstraction for the game.
 
 from board import Board
-from mine import MineError
+from mine import MineError, Mine
 import tkinter as tk
 import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    filename="./logger.txt",
+    format="%(asctime)s; %(levelname)s: %(message)s"
+)
 
 class Game:
 
@@ -28,6 +33,9 @@ class Game:
         Updates the win_countdown and sus counts and then 
         redraws the tracking_frame to display info to user.
         """
+        if isinstance(event.widget, Mine):
+            return
+
         # update sus and win counts
         self.__set_blank_space_count()
         self.sus = 0
@@ -47,11 +55,22 @@ class Game:
         self.tracking_frame.pack()
 
 
-    def play_game(self):
+    def __reveal_board(self):
+        """
+        Loops through all spaces on board and reveals what they
+        were by calling the reveal method. To be used when a user
+        clicks on a mine.
+        """
+        for row in self.board.board:
+            for space in row:
+                space.reveal()
+
+
+    def play_game(self, event=None):
         """
         Creates a new game in tkinter and launches game loop.
         """
-
+        self.log.info("Starting a new game...")
         self.__set_new_game()
 
         # start the game
@@ -64,9 +83,12 @@ class Game:
         that are raised when a user clicks a mine. Default
         is to log the error message.
         """
+        self.log.info(f"exception type: {x_type}, val: {x_val}")
         if isinstance(x_val, MineError):
-            return self.play_game()
-        self.log.log(x_type)
+            restart = tk.Button(master=self.tracking_frame, text="RESTART?")
+            restart.bind("<Button-1>", self.play_game, "+")
+            restart.pack()
+            self.__reveal_board()
 
 
     def __set_new_game(self):
@@ -176,11 +198,17 @@ class Game:
         """
         Creates the labels used in the tracking frame.
         """
+        mine_label = tk.Label(master=self.tracking_frame, text="Mine Count")
+        mine_count = tk.Label(master=self.tracking_frame, text=self.m_count)
+        mine_label.pack()
+        mine_count.pack()
+
         sus_label = tk.Label(master=self.tracking_frame, text="Suspected")
         sus_count = tk.Label(master=self.tracking_frame, text=self.sus)
-        win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
-        win_count = tk.Label(master=self.tracking_frame, text=self.non_mine_count)
         sus_label.pack()
         sus_count.pack()
+
+        win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
+        win_count = tk.Label(master=self.tracking_frame, text=self.non_mine_count)
         win_label.pack()
         win_count.pack()

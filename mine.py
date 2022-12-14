@@ -5,7 +5,7 @@ class MineError(Exception):
     pass
 
 class Mine(Space):
-    bg_color = "black"
+    sel_color = "black"
     
     def __init__(self, row, col, board) -> None:
         super().__init__(row, col, board)
@@ -14,9 +14,11 @@ class Mine(Space):
     def put_on_board(self):
         super().put_on_board()
         self.bind("<Button-1>", self.__select)
-        self.config(background="black")
         self.grid(row=self.row, column=self.col)
 
 
     def __select(self, event):
+        """
+        Raises MineError to be caught by game.
+        """
         raise MineError
