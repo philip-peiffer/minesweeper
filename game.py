@@ -2,11 +2,12 @@
 
 from board import Board
 from mine import MineError, Mine
+from welcome import Welcome, DifficultyBtn
 import tkinter as tk
 import logging
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     filename="./logger.txt",
     format="%(asctime)s; %(levelname)s: %(message)s"
 )
@@ -23,6 +24,7 @@ class Game:
         self.board = None
         self.title = tk.Frame(master=self.root)
         self.tracking_frame = tk.Frame(master=self.root)
+        self.welcome_page = Welcome(master=self.root)
         self.log = logging.getLogger("ms_game")
 
 
@@ -33,7 +35,17 @@ class Game:
         Updates the win_countdown and sus counts and then 
         redraws the tracking_frame to display info to user.
         """
+        self.log.info(f"Updating the gui due to event on widget:{event.widget}")
         if isinstance(event.widget, Mine):
+            return
+
+        if isinstance(event.widget, DifficultyBtn):
+            self.log.info("Building board")
+            self.__recursive_teardown(self.welcome_page)
+            self.__build_board()
+            self.__set_blank_space_count()
+            self.__create_tracking_label()
+            self.__paint_gui()
             return
 
         # update sus and win counts
@@ -47,10 +59,8 @@ class Game:
                     self.non_mine_count -= 1
 
         # update the tracking frame
-        children = self.tracking_frame.winfo_children()
-        for child in children:
-            child.destroy()
-
+        self.__recursive_teardown(self.tracking_frame)
+        self.tracking_frame = tk.Frame(master=self.root)
         self.__create_tracking_label()
         self.tracking_frame.pack()
 
@@ -96,17 +106,14 @@ class Game:
         Creates a new tkinter window for a game.
         """
         if self.board is not None:
-            self.root.destroy()
+            self.__recursive_teardown(self.root)
             self.root = tk.Tk()
             self.title = tk.Frame(master=self.root)
             self.tracking_frame = tk.Frame(master=self.root)
+            self.welcome_page = Welcome(master=self.root)
         self.__set_root_callback()
         self.__create_title_label()
         self.__set_board_dims()
-        self.__build_board()
-        self.__set_blank_space_count()
-        self.__create_tracking_label()
-        self.__paint_gui()
 
 
     def __paint_gui(self):
@@ -124,26 +131,13 @@ class Game:
         Prompts the user for input on game difficulty.
         Sets board dimension attributes based on selection.
         """
-        valid = False
-        while not valid:
-            print("Please choose a difficulty:")
-            print(" Enter 1 for Easy (10x10)")
-            print(" Enter 2 for Medium (20x20)")
-            print(" Enter 3 for Hard (30x30)")
-            choice = input(":")
-            valid = True
-            
-            if choice == "1":
-                self.b_width, self.b_height = 10, 10
-                self.m_count = 20
-            elif choice == "2":
-                self.b_width, self.b_height = 20, 20
-                self.m_count = 100
-            elif choice == "3":
-                self.b_width, self.b_height = 20, 20
-                self.m_count = 180
-            else:
-                valid = False
+        def bind_func(event):
+            self.log.debug(f"setting board dims due to event {event}")
+            self.b_height, self.b_width, self.m_count = event.widget.get_board_dims()
+            self.__update_gui(event)
+        self.welcome_page.bind_func_to_buttons(bind_func)
+        self.welcome_page.display()
+        self.log.info("Displaying welcome page")
 
 
     def __set_blank_space_count(self):
@@ -212,3 +206,11 @@ class Game:
         win_count = tk.Label(master=self.tracking_frame, text=self.non_mine_count)
         win_label.pack()
         win_count.pack()
+
+
+    def __recursive_teardown(self, widget: tk.Widget):
+        self.log.debug(f"tearing down widget: {widget}")
+        for child in widget.winfo_children():
+            self.log.debug(f"\tchild: {child}")
+            self.__recursive_teardown(child)
+        widget.destroy()
