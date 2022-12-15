@@ -1,5 +1,6 @@
 # This module contains an abstraction for spaces on the board.
-from tkinter import Button, RAISED, SUNKEN
+from tkinter import Button, RAISED
+import logging
 
 class Space(Button):
     bg_color = "grey"
@@ -13,6 +14,7 @@ class Space(Button):
         self.neighbors = []
         self.suspected = False
         self.selected = False
+        self.log = logging.getLogger("space")
 
 
     @property
@@ -52,6 +54,7 @@ class Space(Button):
 
     def select(self, event):
         if not self.selected:
+            self.log.info(f"Selecting ({self.row, self.col})")
             self.suspected = False
             self.selected = True
             self.reveal()
@@ -70,11 +73,13 @@ class Space(Button):
         Also updates the button text to show a question mark on 
         the GUI.
         """
+        
         if self.selected:
             return
-
         self.suspected = not self.suspected
         if self.suspected:
-            self.config(text="?", background=self.sus_color)
-            return
+            self.log.info(f"Flagging {self.row, self.col} as suspected")
+            return self.config(text="?", background=self.sus_color)
+
+        self.log.info(f"Removing sus flag from {self.row, self.col}")    
         self.config(text="", background=self.bg_color)
