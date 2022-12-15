@@ -7,7 +7,7 @@ import tkinter as tk
 import logging
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     filename="./logger.txt",
     format="%(asctime)s; %(levelname)s: %(message)s"
 )
@@ -28,16 +28,18 @@ class Game:
         self.log = logging.getLogger("ms_game")
 
 
-    def __update_gui(self, event):
+    def __update_gui(self, event: tk.Event):
         """
         Updates the gui by looping through every space on the 
         board and inspecting if they're suspected or selected.
         Updates the win_countdown and sus counts and then 
         redraws the tracking_frame to display info to user.
         """
-        self.log.info(f"Updating the gui due to event on widget:{event.widget}")
+        self.log.info(f"Updating the gui due to event {event}")
         if isinstance(event.widget, Mine):
-            return
+            # skip updating the gui if you left clicked a mine
+            if event.num == 1:
+                return
 
         if isinstance(event.widget, DifficultyBtn):
             self.log.info("Building board")
@@ -53,10 +55,10 @@ class Game:
         self.sus = 0
         for row in self.board.board:
             for space in row:
-                if space.suspected:
-                    self.sus += 1
                 if space.selected:
                     self.non_mine_count -= 1
+                elif space.suspected:
+                    self.sus += 1
 
         # update the tracking frame
         self.__recursive_teardown(self.tracking_frame)
@@ -93,7 +95,7 @@ class Game:
         that are raised when a user clicks a mine. Default
         is to log the error message.
         """
-        self.log.info(f"exception type: {x_type}, val: {x_val}")
+        self.log.error(f"exception type: {x_type}, val: {x_val}")
         if isinstance(x_val, MineError):
             restart = tk.Button(master=self.tracking_frame, text="RESTART?")
             restart.bind("<Button-1>", self.play_game, "+")
@@ -209,8 +211,6 @@ class Game:
 
 
     def __recursive_teardown(self, widget: tk.Widget):
-        self.log.debug(f"tearing down widget: {widget}")
         for child in widget.winfo_children():
-            self.log.debug(f"\tchild: {child}")
             self.__recursive_teardown(child)
         widget.destroy()
