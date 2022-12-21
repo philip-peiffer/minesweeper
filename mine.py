@@ -11,13 +11,7 @@ class Mine(Space):
         super().__init__(row, col, board)
 
 
-    def put_on_board(self):
-        super().put_on_board()
-        self.bind("<Button-1>", self.__select)
-        self.grid(row=self.row, column=self.col)
-
-
-    def __select(self, event):
+    def select(self, event):
         """
         Raises MineError to be caught by game.
         """
