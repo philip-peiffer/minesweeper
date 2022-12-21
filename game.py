@@ -28,6 +28,8 @@ class Game:
         self.welcome_page = Welcome(master=self.root)
         self.log = logging.getLogger("ms_game")
 
+        self.__set_root_callback()
+
 
     def __update_gui(self, event: tk.Event):
         """
@@ -109,7 +111,6 @@ class Game:
             self.__recursive_teardown(self.root)
             self.__init__()
         
-        self.__set_root_callback()
         self.__set_board_dims()
 
 
