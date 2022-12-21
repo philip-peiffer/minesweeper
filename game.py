@@ -3,6 +3,7 @@
 from board import Board
 from mine import MineError, Mine
 from welcome import Welcome, DifficultyBtn
+from score_frame import ScoreFrame
 import tkinter as tk
 import logging
 
@@ -23,7 +24,7 @@ class Game:
         self.root = tk.Tk()
         self.board = None
         self.title = self.__create_title()
-        self.tracking_frame = tk.Frame(master=self.root)
+        self.score_frame = ScoreFrame(master=self.root)
         self.welcome_page = Welcome(master=self.root)
         self.log = logging.getLogger("ms_game")
 
@@ -46,7 +47,7 @@ class Game:
             self.__recursive_teardown(self.welcome_page)
             self.__build_board()
             self.__set_blank_space_count()
-            self.__create_tracking_label()
+            self.__update_score_frame()
             self.__paint_gui()
             return
 
@@ -60,11 +61,8 @@ class Game:
                 elif space.suspected:
                     self.sus += 1
 
-        # update the tracking frame
-        self.__recursive_teardown(self.tracking_frame)
-        self.tracking_frame = tk.Frame(master=self.root)
-        self.__create_tracking_label()
-        self.tracking_frame.pack()
+        # update the score frame
+        self.__update_score_frame()
 
 
     def __reveal_board(self):
@@ -97,7 +95,7 @@ class Game:
         """
         self.log.error(f"exception type: {x_type}, val: {x_val}")
         if isinstance(x_val, MineError):
-            restart = tk.Button(master=self.tracking_frame, text="RESTART?")
+            restart = tk.Button(master=self.score_frame, text="RESTART?")
             restart.bind("<Button-1>", self.play_game, "+")
             restart.pack()
             self.__reveal_board()
@@ -122,7 +120,7 @@ class Game:
         """
         self.title.pack(side=tk.TOP)
         self.board.pack(side=tk.LEFT)
-        self.tracking_frame.pack(side=tk.RIGHT)
+        self.score_frame.pack(side=tk.RIGHT)
 
 
     def __set_board_dims(self):
@@ -189,24 +187,13 @@ class Game:
         return title_frame
 
 
-    def __create_tracking_label(self):
+    def __update_score_frame(self):
         """
-        Creates the labels used in the tracking frame.
+        Updates the info that you see in the score frame.
         """
-        mine_label = tk.Label(master=self.tracking_frame, text="Mine Count")
-        mine_count = tk.Label(master=self.tracking_frame, text=self.m_count)
-        mine_label.pack()
-        mine_count.pack()
-
-        sus_label = tk.Label(master=self.tracking_frame, text="Suspected")
-        sus_count = tk.Label(master=self.tracking_frame, text=self.sus)
-        sus_label.pack()
-        sus_count.pack()
-
-        win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
-        win_count = tk.Label(master=self.tracking_frame, text=self.non_mine_count)
-        win_label.pack()
-        win_count.pack()
+        self.score_frame.update_spaces_remaining(self.non_mine_count)
+        self.score_frame.update_suspected(self.sus)
+        self.score_frame.update_mine_count(self.m_count)
 
 
     def __recursive_teardown(self, widget: tk.Widget):
