@@ -109,10 +109,8 @@ class Game:
         """
         if self.board is not None:
             self.__recursive_teardown(self.root)
-            self.root = tk.Tk()
-            self.title = tk.Frame(master=self.root)
-            self.tracking_frame = tk.Frame(master=self.root)
-            self.welcome_page = Welcome(master=self.root)
+            self.__init__()
+        
         self.__set_root_callback()
         self.__create_title_label()
         self.__set_board_dims()
