@@ -93,7 +93,11 @@ class Game:
         Creates a new game in tkinter and launches game loop.
         """
         self.log.info("Starting a new game...")
-        self.__set_new_game()
+        if self.board is not None:
+            self.__recursive_teardown(self.root)
+            self.__init__()
+        
+        self.__set_board_dims()
 
         # start the game
         self.root.mainloop()
@@ -106,17 +110,6 @@ class Game:
         is to log the error message.
         """
         self.log.error(f"exception type: {x_type}, val: {x_val}")
-
-
-    def __set_new_game(self):
-        """
-        Creates a new tkinter window for a game.
-        """
-        if self.board is not None:
-            self.__recursive_teardown(self.root)
-            self.__init__()
-        
-        self.__set_board_dims()
 
 
     def __paint_gui(self):
