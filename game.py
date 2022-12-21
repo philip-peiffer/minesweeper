@@ -94,6 +94,7 @@ class Game:
         """
         self.log.info("Starting a new game...")
         if self.board is not None:
+            self.log.info("Tearing down old game...")
             self.__recursive_teardown(self.root)
             self.__init__()
         
