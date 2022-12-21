@@ -3,6 +3,7 @@
 from board import Board
 from mine import MineError, Mine
 from welcome import Welcome, DifficultyBtn
+from score_frame import ScoreFrame
 import tkinter as tk
 import logging
 
@@ -22,10 +23,40 @@ class Game:
         self.sus = 0
         self.root = tk.Tk()
         self.board = None
-        self.title = tk.Frame(master=self.root)
-        self.tracking_frame = tk.Frame(master=self.root)
+        self.title = self.__create_title()
+        self.score_frame = ScoreFrame(master=self.root)
         self.welcome_page = Welcome(master=self.root)
         self.log = logging.getLogger("ms_game")
+
+        self.root.report_callback_exception = self.__handle_exceptions
+
+
+    def __handle_difficulty_choice(self, event: tk.Event):
+        """
+        To be bound to the difficulty buttons on the welcome page.
+        This method tears down the welcome page and builds the 
+        actual game after the user input.
+        """
+        self.log.debug(f"setting board dims due to event {event}")
+        self.b_height, self.b_width, self.m_count = event.widget.get_board_dims()
+
+        self.log.info("Building board")
+        self.__recursive_teardown(self.welcome_page)
+        self.__build_board()
+        self.__update_counts()
+        self.__update_score_frame()
+        self.__display_game_gui()
+
+
+    def __handle_mine_click(self):
+        """
+        Updates the GUI to show a restart button in the score frame
+        area. Also reveals the location of all the pieces.
+        """
+        restart = tk.Button(master=self.score_frame, text="RESTART?")
+        restart.bind("<Button-1>", self.play_game, "+")
+        restart.pack()
+        self.board.reveal()
 
 
     def __update_gui(self, event: tk.Event):
@@ -35,47 +66,15 @@ class Game:
         Updates the win_countdown and sus counts and then 
         redraws the tracking_frame to display info to user.
         """
-        self.log.info(f"Updating the gui due to event {event}")
-        if isinstance(event.widget, Mine):
-            # skip updating the gui if you left clicked a mine
-            if event.num == 1:
-                return
-
-        if isinstance(event.widget, DifficultyBtn):
-            self.log.info("Building board")
-            self.__recursive_teardown(self.welcome_page)
-            self.__build_board()
-            self.__set_blank_space_count()
-            self.__create_tracking_label()
-            self.__paint_gui()
-            return
+        self.log.debug(f"Updating the gui due to event {event}")
+        if isinstance(event.widget, Mine) and event.num != 3:
+            return self.__handle_mine_click()
 
         # update sus and win counts
-        self.__set_blank_space_count()
-        self.sus = 0
-        for row in self.board.board:
-            for space in row:
-                if space.selected:
-                    self.non_mine_count -= 1
-                elif space.suspected:
-                    self.sus += 1
+        self.__update_counts()
 
-        # update the tracking frame
-        self.__recursive_teardown(self.tracking_frame)
-        self.tracking_frame = tk.Frame(master=self.root)
-        self.__create_tracking_label()
-        self.tracking_frame.pack()
-
-
-    def __reveal_board(self):
-        """
-        Loops through all spaces on board and reveals what they
-        were by calling the reveal method. To be used when a user
-        clicks on a mine.
-        """
-        for row in self.board.board:
-            for space in row:
-                space.reveal()
+        # update the score frame
+        self.__update_score_frame()
 
 
     def play_game(self, event=None):
@@ -83,7 +82,12 @@ class Game:
         Creates a new game in tkinter and launches game loop.
         """
         self.log.info("Starting a new game...")
-        self.__set_new_game()
+        if self.board is not None:
+            self.log.info("Tearing down old game...")
+            self.__recursive_teardown(self.root)
+            self.__init__()
+        
+        self.__set_board_dims()
 
         # start the game
         self.root.mainloop()
@@ -96,36 +100,16 @@ class Game:
         is to log the error message.
         """
         self.log.error(f"exception type: {x_type}, val: {x_val}")
-        if isinstance(x_val, MineError):
-            restart = tk.Button(master=self.tracking_frame, text="RESTART?")
-            restart.bind("<Button-1>", self.play_game, "+")
-            restart.pack()
-            self.__reveal_board()
 
 
-    def __set_new_game(self):
-        """
-        Creates a new tkinter window for a game.
-        """
-        if self.board is not None:
-            self.__recursive_teardown(self.root)
-            self.root = tk.Tk()
-            self.title = tk.Frame(master=self.root)
-            self.tracking_frame = tk.Frame(master=self.root)
-            self.welcome_page = Welcome(master=self.root)
-        self.__set_root_callback()
-        self.__create_title_label()
-        self.__set_board_dims()
-
-
-    def __paint_gui(self):
+    def __display_game_gui(self):
         """
         Actually places the various frames that are
         properties of this class on the screen.
         """
         self.title.pack(side=tk.TOP)
         self.board.pack(side=tk.LEFT)
-        self.tracking_frame.pack(side=tk.RIGHT)
+        self.score_frame.pack(side=tk.RIGHT)
 
 
     def __set_board_dims(self):
@@ -133,16 +117,12 @@ class Game:
         Prompts the user for input on game difficulty.
         Sets board dimension attributes based on selection.
         """
-        def bind_func(event):
-            self.log.debug(f"setting board dims due to event {event}")
-            self.b_height, self.b_width, self.m_count = event.widget.get_board_dims()
-            self.__update_gui(event)
-        self.welcome_page.bind_func_to_buttons(bind_func)
+        self.welcome_page.bind_func_to_buttons(self.__handle_difficulty_choice)
         self.welcome_page.display()
         self.log.info("Displaying welcome page")
 
 
-    def __set_blank_space_count(self):
+    def __update_counts(self):
         """
         Sets the count of blank spaces based on board dimensions
         and mine count. To be called after getting user input on 
@@ -150,6 +130,12 @@ class Game:
         """
         self.non_mine_count = self.b_height * self.b_width - self.m_count
         self.sus = 0
+        for row in self.board.board:
+            for space in row:
+                if space.selected:
+                    self.non_mine_count -= 1
+                elif space.suspected:
+                    self.sus += 1
 
 
     def __build_board(self):
@@ -169,45 +155,31 @@ class Game:
         Binds the update_gui method to the spaces on the board
         so that tracking frame can be updated with each click.
         """
-        for row in self.board.board:
-            for space in row:
-                space.bind("<Button-1>", self.__update_gui, "+")
-                space.bind("<Button-3>", self.__update_gui, "+")
+        self.board.bind_funcs_to_board_spaces(
+            {
+                "<Button-1>": self.__update_gui,
+                "<Button-3>": self.__update_gui
+            }
+        )
 
 
-    def __set_root_callback(self):
+    def __create_title(self):
         """
-        Sets callback behavior for the tkinter root.
+        Creates the title with label used in the game.
         """
-        self.root.report_callback_exception = self.__handle_exceptions
-
-
-    def __create_title_label(self):
-        """
-        Creates the label used in the title frame.
-        """
-        title_label = tk.Label(master=self.title, text="Mine Sweeper")
+        title_frame = tk.Frame(master=self.root)
+        title_label = tk.Label(master=title_frame, text="Mine Sweeper")
         title_label.pack()
+        return title_frame
 
 
-    def __create_tracking_label(self):
+    def __update_score_frame(self):
         """
-        Creates the labels used in the tracking frame.
+        Updates the info that you see in the score frame.
         """
-        mine_label = tk.Label(master=self.tracking_frame, text="Mine Count")
-        mine_count = tk.Label(master=self.tracking_frame, text=self.m_count)
-        mine_label.pack()
-        mine_count.pack()
-
-        sus_label = tk.Label(master=self.tracking_frame, text="Suspected")
-        sus_count = tk.Label(master=self.tracking_frame, text=self.sus)
-        sus_label.pack()
-        sus_count.pack()
-
-        win_label = tk.Label(master=self.tracking_frame, text="Spaces Remaining")
-        win_count = tk.Label(master=self.tracking_frame, text=self.non_mine_count)
-        win_label.pack()
-        win_count.pack()
+        self.score_frame.update_spaces_remaining(self.non_mine_count)
+        self.score_frame.update_suspected(self.sus)
+        self.score_frame.update_mine_count(self.m_count)
 
 
     def __recursive_teardown(self, widget: tk.Widget):
