@@ -48,6 +48,18 @@ class Game:
         self.__paint_gui()
 
 
+
+    def __handle_mine_click(self):
+        """
+        Updates the GUI to show a restart button in the score frame
+        area. Also reveals the location of all the pieces.
+        """
+        restart = tk.Button(master=self.score_frame, text="RESTART?")
+        restart.bind("<Button-1>", self.play_game, "+")
+        restart.pack()
+        self.__reveal_board()
+
+
     def __update_gui(self, event: tk.Event):
         """
         Updates the gui by looping through every space on the 
@@ -55,11 +67,9 @@ class Game:
         Updates the win_countdown and sus counts and then 
         redraws the tracking_frame to display info to user.
         """
-        self.log.info(f"Updating the gui due to event {event}")
+        self.log.debug(f"Updating the gui due to event {event}")
         if isinstance(event.widget, Mine):
-            # skip updating the gui if you left clicked a mine
-            if event.num == 1:
-                return
+            return self.__handle_mine_click()
 
         # update sus and win counts
         self.__set_blank_space_count()
@@ -104,11 +114,6 @@ class Game:
         is to log the error message.
         """
         self.log.error(f"exception type: {x_type}, val: {x_val}")
-        if isinstance(x_val, MineError):
-            restart = tk.Button(master=self.score_frame, text="RESTART?")
-            restart.bind("<Button-1>", self.play_game, "+")
-            restart.pack()
-            self.__reveal_board()
 
 
     def __set_new_game(self):
