@@ -67,7 +67,7 @@ class Game:
         redraws the tracking_frame to display info to user.
         """
         self.log.debug(f"Updating the gui due to event {event}")
-        if isinstance(event.widget, Mine):
+        if isinstance(event.widget, Mine) and event.num != 3:
             return self.__handle_mine_click()
 
         # update sus and win counts
@@ -155,10 +155,12 @@ class Game:
         Binds the update_gui method to the spaces on the board
         so that tracking frame can be updated with each click.
         """
-        for row in self.board.board:
-            for space in row:
-                space.bind("<Button-1>", self.__update_gui, "+")
-                space.bind("<Button-3>", self.__update_gui, "+")
+        self.board.bind_funcs_to_board_spaces(
+            {
+                "<Button-1>": self.__update_gui,
+                "<Button-3>": self.__update_gui
+            }
+        )
 
 
     def __create_title(self):
