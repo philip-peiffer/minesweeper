@@ -39,14 +39,13 @@ class Game:
         """
         self.log.debug(f"setting board dims due to event {event}")
         self.b_height, self.b_width, self.m_count = event.widget.get_board_dims()
-        self.__set_blank_space_count()
-        self.__update_score_frame()
 
         self.log.info("Building board")
         self.__recursive_teardown(self.welcome_page)
         self.__build_board()
+        self.__update_counts()
+        self.__update_score_frame()
         self.__paint_gui()
-
 
 
     def __handle_mine_click(self):
@@ -72,14 +71,7 @@ class Game:
             return self.__handle_mine_click()
 
         # update sus and win counts
-        self.__set_blank_space_count()
-        self.sus = 0
-        for row in self.board.board:
-            for space in row:
-                if space.selected:
-                    self.non_mine_count -= 1
-                elif space.suspected:
-                    self.sus += 1
+        self.__update_counts()
 
         # update the score frame
         self.__update_score_frame()
@@ -147,7 +139,7 @@ class Game:
         self.log.info("Displaying welcome page")
 
 
-    def __set_blank_space_count(self):
+    def __update_counts(self):
         """
         Sets the count of blank spaces based on board dimensions
         and mine count. To be called after getting user input on 
@@ -155,6 +147,12 @@ class Game:
         """
         self.non_mine_count = self.b_height * self.b_width - self.m_count
         self.sus = 0
+        for row in self.board.board:
+            for space in row:
+                if space.selected:
+                    self.non_mine_count -= 1
+                elif space.suspected:
+                    self.sus += 1
 
 
     def __build_board(self):
