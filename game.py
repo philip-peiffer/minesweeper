@@ -31,6 +31,23 @@ class Game:
         self.__set_root_callback()
 
 
+    def __handle_difficulty_choice(self, event: tk.Event):
+        """
+        To be bound to the difficulty buttons on the welcome page.
+        This method tears down the welcome page and builds the 
+        actual game after the user input.
+        """
+        self.log.debug(f"setting board dims due to event {event}")
+        self.b_height, self.b_width, self.m_count = event.widget.get_board_dims()
+        self.__set_blank_space_count()
+        self.__update_score_frame()
+
+        self.log.info("Building board")
+        self.__recursive_teardown(self.welcome_page)
+        self.__build_board()
+        self.__paint_gui()
+
+
     def __update_gui(self, event: tk.Event):
         """
         Updates the gui by looping through every space on the 
@@ -43,15 +60,6 @@ class Game:
             # skip updating the gui if you left clicked a mine
             if event.num == 1:
                 return
-
-        if isinstance(event.widget, DifficultyBtn):
-            self.log.info("Building board")
-            self.__recursive_teardown(self.welcome_page)
-            self.__build_board()
-            self.__set_blank_space_count()
-            self.__update_score_frame()
-            self.__paint_gui()
-            return
 
         # update sus and win counts
         self.__set_blank_space_count()
@@ -129,11 +137,7 @@ class Game:
         Prompts the user for input on game difficulty.
         Sets board dimension attributes based on selection.
         """
-        def bind_func(event):
-            self.log.debug(f"setting board dims due to event {event}")
-            self.b_height, self.b_width, self.m_count = event.widget.get_board_dims()
-            self.__update_gui(event)
-        self.welcome_page.bind_func_to_buttons(bind_func)
+        self.welcome_page.bind_func_to_buttons(self.__handle_difficulty_choice)
         self.welcome_page.display()
         self.log.info("Displaying welcome page")
 
