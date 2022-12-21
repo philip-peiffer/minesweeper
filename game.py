@@ -28,7 +28,7 @@ class Game:
         self.welcome_page = Welcome(master=self.root)
         self.log = logging.getLogger("ms_game")
 
-        self.__set_root_callback()
+        self.root.report_callback_exception = self.__handle_exceptions
 
 
     def __handle_difficulty_choice(self, event: tk.Event):
@@ -176,13 +176,6 @@ class Game:
             for space in row:
                 space.bind("<Button-1>", self.__update_gui, "+")
                 space.bind("<Button-3>", self.__update_gui, "+")
-
-
-    def __set_root_callback(self):
-        """
-        Sets callback behavior for the tkinter root.
-        """
-        self.root.report_callback_exception = self.__handle_exceptions
 
 
     def __create_title(self):
