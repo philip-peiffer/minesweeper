@@ -120,3 +120,12 @@ class Board(Frame):
         rand_col = random.randrange(0, self.width)
         rand_row = random.randrange(0, self.height)
         return (rand_row, rand_col)
+
+
+    def reveal(self):
+        """
+        Reveals the spaces on the board.
+        """
+        for row in self.board:
+            for space in row:
+                space.reveal()

@@ -45,7 +45,7 @@ class Game:
         self.__build_board()
         self.__update_counts()
         self.__update_score_frame()
-        self.__paint_gui()
+        self.__display_game_gui()
 
 
     def __handle_mine_click(self):
@@ -56,7 +56,7 @@ class Game:
         restart = tk.Button(master=self.score_frame, text="RESTART?")
         restart.bind("<Button-1>", self.play_game, "+")
         restart.pack()
-        self.__reveal_board()
+        self.board.reveal()
 
 
     def __update_gui(self, event: tk.Event):
@@ -75,17 +75,6 @@ class Game:
 
         # update the score frame
         self.__update_score_frame()
-
-
-    def __reveal_board(self):
-        """
-        Loops through all spaces on board and reveals what they
-        were by calling the reveal method. To be used when a user
-        clicks on a mine.
-        """
-        for row in self.board.board:
-            for space in row:
-                space.reveal()
 
 
     def play_game(self, event=None):
@@ -113,7 +102,7 @@ class Game:
         self.log.error(f"exception type: {x_type}, val: {x_val}")
 
 
-    def __paint_gui(self):
+    def __display_game_gui(self):
         """
         Actually places the various frames that are
         properties of this class on the screen.
