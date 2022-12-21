@@ -22,7 +22,7 @@ class Game:
         self.sus = 0
         self.root = tk.Tk()
         self.board = None
-        self.title = tk.Frame(master=self.root)
+        self.title = self.__create_title()
         self.tracking_frame = tk.Frame(master=self.root)
         self.welcome_page = Welcome(master=self.root)
         self.log = logging.getLogger("ms_game")
@@ -112,7 +112,6 @@ class Game:
             self.__init__()
         
         self.__set_root_callback()
-        self.__create_title_label()
         self.__set_board_dims()
 
 
@@ -180,12 +179,14 @@ class Game:
         self.root.report_callback_exception = self.__handle_exceptions
 
 
-    def __create_title_label(self):
+    def __create_title(self):
         """
-        Creates the label used in the title frame.
+        Creates the title with label used in the game.
         """
-        title_label = tk.Label(master=self.title, text="Mine Sweeper")
+        title_frame = tk.Frame(master=self.root)
+        title_label = tk.Label(master=title_frame, text="Mine Sweeper")
         title_label.pack()
+        return title_frame
 
 
     def __create_tracking_label(self):
