@@ -122,6 +122,19 @@ class Board(Frame):
         return (rand_row, rand_col)
 
 
+    def bind_funcs_to_board_spaces(self, func_dict):
+        """
+        Requires a dictionary as input. The dictionary must have the 
+        tkinter sequence (i.e. "<Button-1>", "<Button-3>", etc.) as the 
+        key with a value of the func that should handle that sequence.
+        Binds the func value to each space for the given sequence (key).
+        """
+        for row in self.board:
+            for space in row:
+                for key in func_dict:
+                    space.bind(key, func_dict[key], "+")
+
+
     def reveal(self):
         """
         Reveals the spaces on the board.
