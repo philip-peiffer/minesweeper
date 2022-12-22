@@ -4,6 +4,7 @@ from mine import Mine
 from mine_neighbors import MineNeighbor
 from tkinter import Frame
 import random
+import logging
 
 class Board(Frame):
 
@@ -18,6 +19,7 @@ class Board(Frame):
             for row in range(self.height)
         ]
         super().__init__(master=self.master)
+        self.log = logging.getLogger("board")
 
 
     def build_board(self):
@@ -132,7 +134,18 @@ class Board(Frame):
         for row in self.board:
             for space in row:
                 for key in func_dict:
-                    space.bind(key, func_dict[key], "+")
+                    space.bind_func(key, func_dict[key])
+
+
+    def disable_interactions(self):
+        """
+        Unbinds all of the functions bound to the board spaces.
+        Use this at the end of the game to prevent a user from clicking
+        around after winning or losing.
+        """
+        for row in self.board:
+            for space in row:
+                space.unbind_all_sequences()
 
 
     def reveal(self):
