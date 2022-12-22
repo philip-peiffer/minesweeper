@@ -14,6 +14,7 @@ class Space(Button):
         self.neighbors = []
         self.suspected = False
         self.selected = False
+        self.bound_seqs = []
         self.log = logging.getLogger("space")
 
 
@@ -47,9 +48,29 @@ class Space(Button):
         )
 
         # bind right mouse click actions to button
-        self.bind("<Button-3>", self.__toggle_suspect, "+")
-        self.bind("<Button-1>", self.select, "+")
+        self.bind_func("<Button-3>", self.__toggle_suspect)
+        self.bind_func("<Button-1>", self.select)
         self.grid(row=self.row, column=self.col)
+
+
+    def bind_func(self, sequence, func):
+        """
+        Binds the given sequence ("<Button-1>", "<Button-3>", etc.)
+        to the space. The passed func is performed when the sequence
+        is initiated. The default is to add this sequence in addition
+        to other already existing sequences.
+        """
+        self.bind(sequence, func, "+")
+        self.bound_seqs.append(sequence)
+
+
+    def unbind_all_sequences(self):
+        """
+        Unbinds all the currently bound sequences from the space.
+        """
+        for seq in self.bound_seqs:
+            self.unbind(seq)
+        self.bound_seqs = []
 
 
     def select(self, event):
