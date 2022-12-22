@@ -53,10 +53,31 @@ class Game:
         Updates the GUI to show a restart button in the score frame
         area. Also reveals the location of all the pieces.
         """
+        self.log.info("You lost :(")
+        tk.Label(master=self.score_frame, text="YOU LOST :'(").pack(ipady=5)
+        self.__create_restart_button()
+        self.board.reveal()
+
+
+    def __create_restart_button(self):
+        """
+        Creates a restart button that the user can click in the score
+        frame. Once clicked, it restarts the game.
+        """
+        self.log.debug("Creating restart button")
         restart = tk.Button(master=self.score_frame, text="RESTART?")
         restart.bind("<Button-1>", self.play_game, "+")
         restart.pack()
-        self.board.reveal()
+
+
+    def __handle_win(self):
+        """
+        Displays a congratulatory message on the screen and generates a 
+        restart button.
+        """
+        self.log.info("You won!")
+        tk.Label(master=self.score_frame, text="YOU WIN!").pack(ipady=5)
+        self.__create_restart_button()
 
 
     def __update_gui(self, event: tk.Event):
@@ -75,6 +96,10 @@ class Game:
 
         # update the score frame
         self.__update_score_frame()
+
+        # if the non-mine count has reached 0, the user has won
+        if self.non_mine_count == 0:
+            self.__handle_win()
 
 
     def play_game(self, event=None):

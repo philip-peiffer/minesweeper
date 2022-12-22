@@ -12,7 +12,7 @@ class DifficultyBtn(tk.Button):
     def get_board_dims(self):
         if self.difficulty == "EASY":
             # returns height, width, mine_count
-            return 10, 10, 15
+            return 10, 10, 1
         elif self.difficulty == "MEDIUM":
             return 10, 10, 30
         else:
