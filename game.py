@@ -1,8 +1,8 @@
 # This module contains an abstraction for the game.
 
 from board import Board
-from mine import MineError, Mine
-from welcome import Welcome, DifficultyBtn
+from mine import Mine
+from welcome import Welcome
 from score_frame import ScoreFrame
 import tkinter as tk
 import logging
@@ -10,7 +10,7 @@ import logging
 logging.basicConfig(
     level=logging.INFO,
     filename="./logger.txt",
-    format="%(asctime)s; %(levelname)s: %(message)s"
+    format="%(asctime)s; %(name)s %(levelname)s: %(message)s"
 )
 
 class Game:
@@ -54,6 +54,7 @@ class Game:
         area. Also reveals the location of all the pieces.
         """
         self.log.info("You lost :(")
+        self.board.disable_interactions()
         tk.Label(master=self.score_frame, text="YOU LOST :'(").pack(ipady=5)
         self.__create_restart_button()
         self.board.reveal()
@@ -76,6 +77,7 @@ class Game:
         restart button.
         """
         self.log.info("You won!")
+        self.board.disable_interactions()
         tk.Label(master=self.score_frame, text="YOU WIN!").pack(ipady=5)
         self.__create_restart_button()
 
@@ -153,6 +155,7 @@ class Game:
         and mine count. To be called after getting user input on 
         difficulty.
         """
+        self.log.debug("Updating score counts")
         self.non_mine_count = self.b_height * self.b_width - self.m_count
         self.sus = 0
         for row in self.board.board:
@@ -202,6 +205,7 @@ class Game:
         """
         Updates the info that you see in the score frame.
         """
+        self.log.debug("Updating score frame")
         self.score_frame.update_spaces_remaining(self.non_mine_count)
         self.score_frame.update_suspected(self.sus)
         self.score_frame.update_mine_count(self.m_count)
